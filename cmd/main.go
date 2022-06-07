@@ -6,6 +6,7 @@ import (
 
 	"github.com/Muhammadjon226/api_gateway/api"
 	"github.com/Muhammadjon226/api_gateway/config"
+	"github.com/Muhammadjon226/api_gateway/pkg/event"
 	"github.com/Muhammadjon226/api_gateway/pkg/logger"
 	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/joho/godotenv"
@@ -51,13 +52,21 @@ func main() {
 	}
 	initDeps()
 
+	var kafka *event.Kafka
+	if cfg.Environment == "develop" {
+		kafka, err = event.NewKafka(cfg, log)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	server := api.New(api.Config{
 		Logger: log,
 		Config: cfg,
+		Kafka:  kafka,
 	})
 
-
-	fmt.Println("port: ",cfg.HTTPPort)
+	fmt.Println("port: ", cfg.HTTPPort)
 	if err := server.Run(cfg.HTTPPort); err != nil {
 		log.Fatal("error while running gin server", logger.Error(err))
 	}

@@ -31,7 +31,12 @@ func (h *HandlerV1) CreatUser(c *gin.Context) {
 		h.log.Error("failed to bind json", l.Error(err))
 		return
 	}
-	userID := uuid.New()
+	userID, err := uuid.NewRandom()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "error while generating uuid")
+		h.log.Error("error while generate uuid", l.Error(err))
+		return
+	}
 	user := &models.UserModel{
 		Name: body.Name,
 		Age:  body.Age,

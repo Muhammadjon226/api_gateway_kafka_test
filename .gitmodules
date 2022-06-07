@@ -1,0 +1,3 @@
+[submodule "protos"]
+	path = protos
+	url = git@github.com:Muhammadjon226/protos.git

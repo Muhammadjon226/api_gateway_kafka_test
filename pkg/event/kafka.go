@@ -38,8 +38,8 @@ func (k *Kafka) RegisterPublishers() {
 	userRoute := "v1.user"
 	k.AddPublisher(userRoute + ".created")
 	k.AddPublisher(userRoute + ".updated")
-	k.AddPublisher(userRoute + ".list")
-	k.AddPublisher(userRoute + ".get")
+	// k.AddPublisher(userRoute + ".list")
+	// k.AddPublisher(userRoute + ".get")
 	k.AddPublisher(userRoute + ".deleted")
 
 	
