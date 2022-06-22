@@ -11,12 +11,21 @@ definitions:
       message:
         type: string
     type: object
+  models.ListUserResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
   models.StandardErrorModel:
     properties:
       error:
         $ref: '#/definitions/models.Error'
     type: object
-  models.UserModel:
+  models.User:
     properties:
       age:
         type: integer
@@ -46,7 +55,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserModel'
+            $ref: '#/definitions/models.User'
         "400":
           description: Bad Request
           schema:
@@ -56,6 +65,38 @@ paths:
           schema:
             $ref: '#/definitions/models.StandardErrorModel'
       summary: Create User
+      tags:
+      - user
+  /v1/user/list-users/:
+    get:
+      consumes:
+      - application/json
+      description: ListUsers API is for get list of users
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.StandardErrorModel'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.StandardErrorModel'
+      summary: List Users
       tags:
       - user
 securityDefinitions:

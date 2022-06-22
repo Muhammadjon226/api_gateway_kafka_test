@@ -6,9 +6,15 @@ type CreateUserModel struct {
 	Age  int    `json:"age"`
 }
 
-//UserModel ..
-type UserModel struct {
+//User ..
+type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Age  int    `json:"age"`
+}
+
+//ListUserResponse ...
+type ListUserResponse struct {
+	Users []*User `json:"users"`
+	Count int64   `json:"count"`
 }

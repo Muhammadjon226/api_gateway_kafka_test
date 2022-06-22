@@ -1,12 +1,17 @@
 package v1
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/Muhammadjon226/api_gateway/api/models"
 	l "github.com/Muhammadjon226/api_gateway/pkg/logger"
+	"github.com/Muhammadjon226/api_gateway/pkg/utils"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +22,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param create_user body models.CreateUserModel true "create_user"
-// @Success 200 {object} models.UserModel
+// @Success 200 {object} models.User
 // @Failure 400 {object} models.StandardErrorModel
 // @Failure 500 {object} models.StandardErrorModel
 // @Router /v1/user/create-user/ [post]
@@ -37,7 +42,7 @@ func (h *HandlerV1) CreatUser(c *gin.Context) {
 		h.log.Error("error while generate uuid", l.Error(err))
 		return
 	}
-	user := &models.UserModel{
+	user := &models.User{
 		Name: body.Name,
 		Age:  body.Age,
 		ID:   userID.String(),
@@ -63,4 +68,68 @@ func (h *HandlerV1) CreatUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, "ok")
+}
+
+//ListUsers method for get list of users
+// @Summary List Users
+// @Description ListUsers API is for get list of users
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param page query int false "page"
+// @Param limit query int false "limit"
+// @Success 200 {object} models.ListUserResponse
+// @Failure 400 {object} models.StandardErrorModel
+// @Failure 500 {object} models.StandardErrorModel
+// @Router /v1/user/list-users/ [get]
+func (h *HandlerV1) ListUsers(c *gin.Context) {
+
+	var response *models.ListUserResponse
+
+	queryParams := c.Request.URL.Query()
+
+	params, errStr := utils.ParseQueryParams(queryParams)
+
+	if errStr != nil {
+		c.JSON(http.StatusBadRequest, "bad request")
+		return
+	}
+
+	URL := "http://" + h.cfg.UserServiceURL + "/v1/user/list-users/"
+	// httpClient := &http.Client{}
+	// req, err := http.NewRequest(
+	// 	"GET", URL, nil,
+	// )
+	// if err != nil {
+	// 	fmt.Println("error: ", err)
+	// 	c.JSON(http.StatusInternalServerError, err)
+	// }
+	// req.Header.Add("Accept", "application/json")
+	// q := req.URL.Query()
+	// q.Add("limit", strconv.Itoa(int(params.Limit)))
+	// q.Add("page", strconv.Itoa(int(params.Page)))
+
+	// req.URL.RawQuery = q.Encode()
+
+	// response, err := httpClient.Do(req)
+
+	client := resty.New()
+	client.DisableWarn = true
+	resp, err := client.R().
+		SetQueryParam("limit", strconv.Itoa(int(params.Limit))).
+		SetQueryParam("page", strconv.Itoa(int(params.Page))).Get(URL)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = json.Unmarshal(resp.Body(), &response)
+	if err != nil {
+		log.Println("error while unmarshalling response", err)
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, response)
 }

@@ -18,6 +18,7 @@ type Config struct {
 	RedisHost        string
 	RedisPort        int
 	KafkaURL         string
+	UserServiceURL   string
 }
 
 // Load loads environment vars and inflates Config
@@ -35,6 +36,7 @@ func Load() Config {
 	c.RedisPort = cast.ToInt(getOrReturnDefault("REDIS_PORT", 6379))
 	c.HTTPPort = cast.ToString(getOrReturnDefault("REDIS_PORT", ":8000"))
 	c.KafkaURL = cast.ToString(getOrReturnDefault("KAFKA_URL", "127.0.0.1:9092"))
+	c.UserServiceURL = cast.ToString(getOrReturnDefault("USER_SERVICE_URL", "127.0.0.1:9001"))
 
 	c.LogLevel = cast.ToString(getOrReturnDefault("LOG_LEVEL", "debug"))
 
